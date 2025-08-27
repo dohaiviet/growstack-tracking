@@ -1,4 +1,14 @@
 (function () {
+  const CONFIG = {
+    cookieMaxAge: 30 * 24 * 60 * 60,
+    googleScriptUrl:
+      "https://script.google.com/macros/s/AKfycbxsxHYtUnPDXAbIv1eprXeNKZ9A7gtJb0SZ66oaN_Qpfr7yzKELHuzKV2gSRQ6ghZts/exec",
+    conversionApi: {
+      url: "https://demo-be.growstack.vn/api/v2/network/tracking/conv-click-id",
+      apiKey: "0c5a750995bc0561b3d9dcf9bbda5b117347eea4",
+    },
+  };
+
   function getQueryParam(name) {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(name);
@@ -8,20 +18,17 @@
     const clickId = getQueryParam("click_id");
     if (clickId) {
       document.cookie =
-        "click_id=" + clickId + "; path=/; max-age=" + 30 * 24 * 60 * 60;
+        "click_id=" + clickId + "; path=/; max-age=" + CONFIG.cookieMaxAge;
     }
   }
 
   function sendToGoogleSheet(formData) {
-    fetch(
-      "https://script.google.com/macros/s/AKfycbxsxHYtUnPDXAbIv1eprXeNKZ9A7gtJb0SZ66oaN_Qpfr7yzKELHuzKV2gSRQ6ghZts/exec",
-      {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      }
-    );
+    fetch(CONFIG.googleScriptUrl, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
   }
 
   function sendConversion(clickId) {
@@ -31,7 +38,7 @@
     }
 
     fetch(
-      "https://demo-be.growstack.vn/api/v2/network/tracking/conv-click-id?api-key=0c5a750995bc0561b3d9dcf9bbda5b117347eea4",
+      CONFIG.conversionApi.url + "?api-key=" + CONFIG.conversionApi.apiKey,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
