@@ -1,12 +1,7 @@
 (function () {
   const CONFIG = {
     cookieMaxAge: 30 * 24 * 60 * 60,
-    googleScriptUrl:
-      "https://script.google.com/macros/s/AKfycbxsxHYtUnPDXAbIv1eprXeNKZ9A7gtJb0SZ66oaN_Qpfr7yzKELHuzKV2gSRQ6ghZts/exec",
-    conversionApi: {
-      url: "https://demo-be.growstack.vn/api/v2/network/tracking/conv-click-id",
-      apiKey: "0c5a750995bc0561b3d9dcf9bbda5b117347eea4",
-    },
+    webhookApi: "https://auto.admod.vn/webhook/mid-pharma-tracking",
   };
 
   function getQueryParam(name) {
@@ -22,32 +17,12 @@
     }
   }
 
-  function sendToGoogleSheet(formData) {
-    fetch(CONFIG.googleScriptUrl, {
+  function webhookDataForm(formData) {
+    fetch(CONFIG.webhookApi, {
       method: "POST",
-      mode: "no-cors",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
+      body: JSON.stringify({ formData }),
     });
-  }
-
-  function sendConversion(clickId) {
-    if (!clickId) {
-      console.warn("No click_id found, skip conversion");
-      return;
-    }
-
-    fetch(
-      CONFIG.conversionApi.url + "?api-key=" + CONFIG.conversionApi.apiKey,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ click_id: clickId }),
-      }
-    )
-      .then((res) => res.json())
-      .then((data) => console.log("Data:", data))
-      .catch((err) => console.error("Error:", err));
   }
 
   function getCookie(name) {
@@ -73,8 +48,7 @@
 
           formDataObj.click_id = clickId;
 
-          sendToGoogleSheet(formDataObj);
-          sendConversion(clickId);
+          webhookDataForm(formDataObj);
         });
       });
     });
