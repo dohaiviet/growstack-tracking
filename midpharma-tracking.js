@@ -38,20 +38,29 @@
       forms.forEach((form) => {
         form.addEventListener("submit", function (e) {
           e.preventDefault();
+          handleFormSubmission(form);
+        });
 
-          const clickId = getCookie("click_id") || "";
-
-          const formDataObj = {};
-          new FormData(form).forEach((value, key) => {
-            formDataObj[key] = value;
+        const buttons = form.querySelectorAll('button[type="button"]');
+        buttons.forEach((button) => {
+          button.addEventListener("click", function () {
+            handleFormSubmission(form);
           });
-
-          formDataObj.click_id = clickId;
-
-          webhookDataForm(formDataObj);
         });
       });
     });
+  }
+
+  function handleFormSubmission(form) {
+    const clickId = getCookie("click_id") || "";
+
+    const formDataObj = {};
+    new FormData(form).forEach((value, key) => {
+      formDataObj[key] = value;
+    });
+
+    formDataObj.click_id = clickId;
+    webhookDataForm(formDataObj);
   }
 
   setClickId();
