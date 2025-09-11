@@ -1,4 +1,3 @@
-// Midpharma-tracking
 (function () {
   const CONFIG = {
     cookieMaxAge: 30 * 24 * 60 * 60,

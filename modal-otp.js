@@ -31,35 +31,8 @@
       .getElementById("otpCloseBtn")
       .addEventListener("click", function () {
         modal.style.display = "none";
+        stopCountdown();
       });
-
-    startCountdown();
-  }
-
-  function startCountdown(duration = 180) {
-    let remaining = duration;
-
-    const countdownText = document.getElementById("countdownText");
-
-    function updateCountdown() {
-      if (!countdownText) return;
-
-      const minutes = Math.floor(remaining / 60);
-      const seconds = remaining % 60;
-      countdownText.textContent = `Mã hết hạn sau: ${minutes}:${seconds
-        .toString()
-        .padStart(2, "0")}`;
-
-      if (remaining <= 0) {
-        clearInterval(timer);
-        countdownText.textContent = "Mã đã hết hạn, vui lòng gửi lại mã.";
-      }
-
-      remaining--;
-    }
-
-    updateCountdown();
-    const timer = setInterval(updateCountdown, 1000);
   }
 
   function attachFormTracking() {
@@ -88,12 +61,13 @@
           pendingData = formDataObj;
 
           otpModal.style.display = "flex";
+
+          startCountdown();
         });
       });
 
       resendBtn.addEventListener("click", function () {
         startCountdown();
-        console.log(22222);
       });
 
       otpSubmit.addEventListener("click", function () {
@@ -113,6 +87,43 @@
   }
 
   attachFormTracking();
+
+  //Check countdown
+  let countdownTimer = null;
+  let countdownSeconds = 180;
+
+  function startCountdown() {
+    const countdownText = document.getElementById("countdownText");
+    let timeLeft = countdownSeconds;
+
+    stopCountdown();
+
+    function updateText() {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      countdownText.textContent = `Mã OTP sẽ hết hạn sau ${minutes}:${seconds
+        .toString()
+        .padStart(2, "0")}`;
+    }
+
+    updateText();
+    countdownTimer = setInterval(() => {
+      timeLeft--;
+      if (timeLeft <= 0) {
+        clearInterval(countdownTimer);
+        countdownText.textContent = "Mã OTP đã hết hạn. Vui lòng gửi lại mã.";
+        return;
+      }
+      updateText();
+    }, 1000);
+  }
+
+  function stopCountdown() {
+    if (countdownTimer) {
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+    }
+  }
 
   // Add styles
   const style = document.createElement("style");
