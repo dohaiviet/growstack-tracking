@@ -56,7 +56,7 @@
 
     const formDataObj = {};
     new FormData(form).forEach((value, key) => {
-      formDataObj[key] = value;
+      formDataObj[key.toLowerCase()] = value;
     });
 
     formDataObj.click_id = clickId;
