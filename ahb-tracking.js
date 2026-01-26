@@ -35,8 +35,8 @@
 
     if (!form) return;
 
-    ensureInput(form, "note_attributes[aff_click_id]", clickId);
-    ensureInput(form, "checkout[referrer]", clickId);
+    ensureInput(form, "note", clickId);
+    ensureInput(form, "link", clickId);
   }
 
   var t = setInterval(attach, 500);
