@@ -32,10 +32,13 @@
 
     // Add order info
     if (checkoutData) {
+      console.log("=== ORDER DATA ===");
+      console.log("Order Data:", checkoutData);
         payload.order_id = checkoutData.order_id;
         payload.email = checkoutData.email;
         payload.total_price = checkoutData.total_price;
         payload.currency = checkoutData.currency;
+        payload.amount = checkoutData.total_price;
         // Add items if needed, or keep it simple base on "body is params"
         // payload.items = checkoutData.line_items; 
     }
