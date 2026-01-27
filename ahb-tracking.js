@@ -1,38 +1,48 @@
 (function () {
   "use strict";
 
-  var STORAGE_KEY = "aff_click_id";
+  var STORAGE_KEY = "aff_click_id"; // key đã lưu click_id
+  var ATTR_KEY = "aff_click_id"; // tên attribute hiển thị trong đơn
 
-  function getClickId() {
+  function injectClickId(form) {
     try {
-      var d = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      if (d && d.value && Date.now() < d.expiry) return d.value;
-    } catch (e) {}
-    var m = document.cookie.match(/aff_click_id=([^;]+)/);
-    return m ? decodeURIComponent(m[1]) : null;
+      var clickId = localStorage.getItem(STORAGE_KEY);
+      if (!clickId) return;
+
+      // Nếu input đã tồn tại thì chỉ set value
+      var input = form.querySelector(
+        'input[name="attributes[' + ATTR_KEY + ']"]',
+      );
+
+      if (!input) {
+        input = document.createElement("input");
+        input.type = "hidden";
+        input.name = "attributes[" + ATTR_KEY + "]";
+        form.appendChild(input);
+      }
+
+      input.value = clickId;
+    } catch (e) {
+      console.warn("Inject click_id failed", e);
+    }
   }
 
-  function attachByRedirect() {
-    var clickId = getClickId();
-    if (!clickId) return;
+  // Bắt submit checkout
+  document.addEventListener(
+    "submit",
+    function (e) {
+      var form = e.target;
+      if (!form || form.tagName !== "FORM") return;
 
-    // Chỉ chạy khi đang ở trang checkout
-    if (window.location.href.indexOf("/checkout") === -1) return;
-
-    // Kiểm tra xem URL đã có note chưa để tránh loop vô tận
-    if (window.location.href.indexOf("note=") !== -1) return;
-
-    // Tạo URL mới
-    var currentUrl = window.location.href;
-    var separator = currentUrl.indexOf("?") !== -1 ? "&" : "?";
-    
-    // Thêm click_id vào note (Ghi chú đơn hàng)
-    var newUrl = currentUrl + separator + "note=ClickID:" + clickId;
-
-    // Chuyển hướng ngay lập tức
-    window.location.replace(newUrl);
-  }
-
-  // Chạy ngay khi script load
-  attachByRedirect();
+      // Chỉ áp dụng cho checkout
+      if (
+        form.action &&
+        (form.action.indexOf("/checkout") !== -1 ||
+          form.action.indexOf("/cart") !== -1)
+      ) {
+        injectClickId(form);
+      }
+    },
+    true,
+  );
 })();
