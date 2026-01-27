@@ -1,7 +1,8 @@
 (function () {
   "use strict";
 
-  var STORAGE_KEY = "aff_params";
+  var STORAGE_KEY = "aff_params"; // key chứa params
+  var TRACKED_ORDERS_KEY = "aff_tracked_orders"; // key chứa danh sách order đã track
   var WEBHOOK_URL = "https://auto.admod.vn/webhook/101a4326-e25d-403d-9bed-d8b067a39967";
 
   function getTrackingParams() {
@@ -15,6 +16,25 @@
       console.warn("Tracking: Invalid storage data", e);
     }
     return null;
+  }
+
+  function isOrderTracked(orderId) {
+    try {
+      var tracked = JSON.parse(localStorage.getItem(TRACKED_ORDERS_KEY)) || [];
+      return tracked.indexOf(orderId.toString()) !== -1;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function markOrderAsTracked(orderId) {
+    try {
+      var tracked = JSON.parse(localStorage.getItem(TRACKED_ORDERS_KEY)) || [];
+      tracked.push(orderId.toString());
+      localStorage.setItem(TRACKED_ORDERS_KEY, JSON.stringify(tracked));
+    } catch (e) {
+      console.warn("Tracking: Failed to mark order as tracked", e);
+    }
   }
 
   function sendWebhook(params, checkoutData) {
@@ -40,7 +60,6 @@
     }
 
     console.log("=== SENDING WEBHOOK ===");
-    console.log("URL:", WEBHOOK_URL);
     console.log("Payload:", payload);
 
     fetch(WEBHOOK_URL, {
@@ -69,7 +88,7 @@
     var params = getTrackingParams();
     if (!params) {
         console.log("Tracking: Success page reached, but no parameters in storage.");
-        // Proceeding might be skipped if strictly tracking attribution
+        // Decide if we should return or track organic
         // return; 
     }
 
@@ -77,11 +96,19 @@
     var checkout = (window.Sapo && window.Sapo.checkout) || (window.Bizweb && window.Bizweb.checkout);
 
     if (checkout) {
+      var orderId = checkout.order_id;
+      
+      if (isOrderTracked(orderId)) {
+        console.log("Tracking: Order " + orderId + " already tracked. Skipping webhook.");
+        return;
+      }
+
+      // Mark as tracked immediately to prevent double submission
+      markOrderAsTracked(orderId);
+      
       sendWebhook(params, checkout);
     } else {
       console.warn("Tracking: Checkout object not found.");
-      // If we still want to send what we have:
-      // sendWebhook(params, null); 
     }
   }
 
