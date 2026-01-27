@@ -35,10 +35,10 @@
 
     if (!form) return;
 
-    ensureInput(form, "note", clickId);
-    ensureInput(form, "link", clickId);
+    ensureInput(form, "note", "Click ID: " + clickId); 
+    ensureInput(form, "attributes[aff_click_id]", clickId);
   }
 
-  var t = setInterval(attach, 500);
-  setTimeout(() => clearInterval(t), 10000);
+  var t = setInterval(attach, 1000); 
+  setTimeout(() => clearInterval(t), 15000);
 })();
