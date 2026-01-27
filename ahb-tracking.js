@@ -1,5 +1,6 @@
 (function () {
   "use strict";
+
   var STORAGE_KEY = "aff_click_id";
 
   function getClickId() {
@@ -11,38 +12,27 @@
     return m ? decodeURIComponent(m[1]) : null;
   }
 
-  function updateSapoAttribute(clickId) {
-    // Kiểm tra xem đã gửi request chưa để tránh spam
-    if (sessionStorage.getItem("sapo_aff_tracked")) return;
+  function attachByRedirect() {
+    var clickId = getClickId();
+    if (!clickId) return;
 
-    // Dữ liệu gửi đi theo chuẩn Sapo
-    var data = {
-      attributes: {
-        "aff_click_id": clickId
-      }
-    };
+    // Chỉ chạy khi đang ở trang checkout
+    if (window.location.href.indexOf("/checkout") === -1) return;
 
-    // Sử dụng fetch để gọi API cập nhật giỏ hàng
-    fetch('/cart/update.js', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('Affiliate ID attached:', clickId);
-      sessionStorage.setItem("sapo_aff_tracked", "true");
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
+    // Kiểm tra xem URL đã có note chưa để tránh loop vô tận
+    if (window.location.href.indexOf("note=") !== -1) return;
+
+    // Tạo URL mới
+    var currentUrl = window.location.href;
+    var separator = currentUrl.indexOf("?") !== -1 ? "&" : "?";
+    
+    // Thêm click_id vào note (Ghi chú đơn hàng)
+    var newUrl = currentUrl + separator + "note=ClickID:" + clickId;
+
+    // Chuyển hướng ngay lập tức
+    window.location.replace(newUrl);
   }
 
-  var clickId = getClickId();
-  if (clickId) {
-    // Gọi hàm cập nhật ngay khi script chạy
-    updateSapoAttribute(clickId);
-  }
+  // Chạy ngay khi script load
+  attachByRedirect();
 })();
