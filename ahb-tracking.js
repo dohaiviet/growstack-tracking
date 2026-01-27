@@ -2,7 +2,7 @@
   "use strict";
 
   var STORAGE_KEY = "aff_params";
-  var WEBHOOK_URL = "https://auto.admod.vn/webhook-test/101a4326-e25d-403d-9bed-d8b067a39967";
+  var WEBHOOK_URL = "https://auto.admod.vn/webhook/101a4326-e25d-403d-9bed-d8b067a39967";
 
   function getTrackingParams() {
     try {
@@ -32,15 +32,11 @@
 
     // Add order info
     if (checkoutData) {
-      console.log("=== ORDER DATA ===");
-      console.log("Order Data:", checkoutData);
         payload.order_id = checkoutData.order_id;
         payload.email = checkoutData.email;
         payload.total_price = checkoutData.total_price;
         payload.currency = checkoutData.currency;
-        payload.amount = checkoutData.total_price;
-        // Add items if needed, or keep it simple base on "body is params"
-        // payload.items = checkoutData.line_items; 
+        payload.amount = checkoutData.total_line_items_price;
     }
 
     console.log("=== SENDING WEBHOOK ===");
