@@ -50,6 +50,8 @@
       }
     }
 
+    console.log("checkoutData", checkoutData)
+
     // Add order info
     if (checkoutData) {
         payload.order_id = checkoutData.order_id;
