@@ -114,7 +114,6 @@
     }
   }
 
-  // Initialize
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", checkSuccessPage);
   } else {
