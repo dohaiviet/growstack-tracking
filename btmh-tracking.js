@@ -150,6 +150,13 @@
         if (clickIdVal) {
           this.set(clickIdVal);
         }
+
+        var refParamKey = (p && p.ref) ? p.ref : "ref";
+        var refVal = getQueryParam(refParamKey) || getQueryParam("ref");
+
+        if (refVal) {
+          this.set_ref(refVal);
+        }
       } catch (err) {
         console.warn("set_click error:", err);
       }
@@ -158,6 +165,12 @@
     set: function (c) {
       if (c) {
         setCookie("click_id", c, cookieDays);
+      }
+    },
+
+    set_ref: function (r) {
+      if (r) {
+        setCookie("ref", r, cookieDays);
       }
     }
   };
