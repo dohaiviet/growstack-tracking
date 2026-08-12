@@ -47,6 +47,35 @@
     }
   }
 
+  // Helper to fill click_id and ref values into input elements with id/name "click_id" and "ref"
+  function fillInputs() {
+    if (typeof document === "undefined") return;
+    try {
+      var clickId = getCookie("click_id");
+      var ref = getCookie("ref");
+
+      if (clickId) {
+        var clickIdEls = document.querySelectorAll("#click_id, input[name='click_id']");
+        for (var i = 0; i < clickIdEls.length; i++) {
+          if (clickIdEls[i] && typeof clickIdEls[i].value !== "undefined") {
+            clickIdEls[i].value = clickId;
+          }
+        }
+      }
+
+      if (ref) {
+        var refEls = document.querySelectorAll("#ref, input[name='ref']");
+        for (var j = 0; j < refEls.length; j++) {
+          if (refEls[j] && typeof refEls[j].value !== "undefined") {
+            refEls[j].value = ref;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Fill inputs error:", e);
+    }
+  }
+
   // Helper query string parser with fallback for legacy browsers
   function getQueryParam(key) {
     try {
@@ -124,6 +153,14 @@
       var d = parseInt(days, 10);
       if (!isNaN(d) && d > 0) {
         cookieDays = d;
+        var clickIdVal = getCookie("click_id");
+        if (clickIdVal) {
+          this.set(clickIdVal);
+        }
+        var refVal = getCookie("ref");
+        if (refVal) {
+          this.set_ref(refVal);
+        }
       }
     },
 
@@ -157,6 +194,8 @@
         if (refVal) {
           this.set_ref(refVal);
         }
+
+        fillInputs();
       } catch (err) {
         console.warn("set_click error:", err);
       }
@@ -165,23 +204,53 @@
     set: function (c) {
       if (c) {
         setCookie("click_id", c, cookieDays);
+        fillInputs();
       }
     },
 
     set_ref: function (r) {
       if (r) {
         setCookie("ref", r, cookieDays);
+        fillInputs();
       }
+    },
+
+    fill_inputs: function () {
+      fillInputs();
+    },
+
+    get_click_id: function () {
+      return getCookie("click_id");
+    },
+
+    get_ref: function () {
+      return getCookie("ref");
     }
   };
 
   window.BTMH = BTMHTracking;
 
   try {
-    BTMHTracking.set_click();
+    if (typeof window !== "undefined" && typeof window.setTimeout !== "undefined") {
+      window.setTimeout(function () {
+        BTMHTracking.set_click();
+      }, 0);
+    } else {
+      BTMHTracking.set_click();
+    }
   } catch (err) {
     console.warn("Auto tracking set_click error:", err);
   }
+
+  try {
+    if (typeof document !== "undefined") {
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", fillInputs);
+      } else {
+        fillInputs();
+      }
+    }
+  } catch (err) {}
 
   if (typeof window.btmh_order_info !== "undefined") {
     BTMHTracking.track_order(window.btmh_order_info);
