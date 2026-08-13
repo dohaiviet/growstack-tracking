@@ -1,7 +1,7 @@
 (function (window, document) {
   "use strict";
 
-  var cookieDays = 30;
+  var cookieDays = 15;
   var WEBHOOK_URL = "https://auto.admod.vn/webhook/postback-order";
 
   // Helper safe get cookie
